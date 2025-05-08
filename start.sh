@@ -14,4 +14,13 @@ chmod 644 config/*.conf
 # fi
 
 docker compose rm --force --stop --volumes
+
+# Check if any container is using port 5432
+existing_container=$(docker ps --format '{{.ID}} {{.Names}} {{.Ports}}' | grep '0.0.0.0:5432' | awk '{print $1}')
+
+if [ -n "$existing_container" ]; then
+  echo "Stopping container using port 5432: $existing_container"
+  docker stop "$existing_container"
+fi
+
 docker compose up --detach --renew-anon-volumes --timestamps --remove-orphans
